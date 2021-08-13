@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="http://code.jquery.com/jquery-3.6.0.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Josefin+Sans&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href='https://unpkg.com/backpack.css'>
+    <link rel="stylesheet" href="../book/style.css">
+    <style>
+        body {
+            background: #212129;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- partial:index.partial.html -->
+    <section class="app" id="app" data-current-media="book">
+
+        <h1 class="title" id="title">3D cover (CSS)</h1>
+
+        <p class="typing-txt"></p>
+        <p class="typing" id="typo"></p>
+        <article class="media-container">
+            <div class="book-wrapper">
+                <div class="book">
+                    <div class="book__front">
+                        <!--img-->
+                    </div>
+                    <div class="book__paper"></div>
+                    <div class="book__back"></div>
+                </div>
+                <div class="book-shadow"></div>
+            </div>
+
+
+            <div class="movie-wrapper">
+                <div class="main" id="main">
+                    <div class="monster" id="monster">
+                        <div class="monster__face">
+                            <div class="monster__eyes">
+                                <div class="monster__eye"></div>
+                                <div class="monster__eye"></div>
+                            </div>
+                            <div class="monster__mouth">
+                                <div class="monster__top"></div>
+                                <div class="monster__bottom"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+
+        <div class="media-buttons" id="media-buttons">
+            <button class="media__button" value="book">Book</button>
+            <button class="media__button" value="movie">Monster</button>
+        </div>
+        <div class="feed_button_outer">
+            <button class="feed_button" value="feed" onclick="fn_feed()" id="feedbt" style="display: none;">
+                Are you read?
+                <span>F</span><span>e</span><span>e</span><span>d</span><span>!</span><span>!</span>
+            </button>
+        </div>
+
+        <div class="controls" style="display: none;">
+            <div class="controls__thickness">
+                <p>Book thickness: <span id="thickness-output">?</span></p>
+                <input id="thickness" type="range" min="1" max="80" step="1" value="40">
+            </div>
+        </div>
+
+
+        <script>
+            var input = window.location.search;
+            var isbn = input.split(/[/=]/)[1].replace('%', " ");
+            var from = input.split(/[/=]/)[2];
+            var val = "";
+            if (from == "inside") {
+                val = JSON.parse(localStorage.getItem("feedlist"));
+            } else {
+                val = JSON.parse(localStorage.getItem("isbnLS"));
+            }
+            var choosen = [];
+            var page;
+            for (var i = 0; i < val.length; i++) {
+                if (isbn == val[i].isbn) {
+                    choosen = val[i];
+                }
+            }
+            $(document).ready(function () {
+                $(".book__front").html("<img id='thisimg' src='" + choosen.thumbnail + "' alt='cover' onclick='pick()' >");
+                $.ajax({
+                    type: 'get'
+                    , dataType: 'json'
+                    , url: 'http://localhost:4000/page?url=' + choosen.url
+                    , success: function (data) {
+                        choosen.status = data;
+                        if (data >= 10) { page = Math.floor(data / 10); }
+                        if (data < 10) { page = data; }
+                        $('#app').css('--thickness', page + 'px');
+                    }
+                    , error(e) {
+                        console.log(e);
+                    }
+                })
+                $('#thisimg').width('300px');
+                $('.title').html(choosen.title);
+                var tall = localStorage.getItem('monster');
+                tall *= 1;
+                $('#main').css('height', tall / 10 + 'vh');
+                $('#monster').css('height', tall / 10 + 'vh');
+                $('.typing-txt').html(choosen.contents);
+                
+                // typo script
+                var typingBool = false;
+                var typingIdx = 0;
+                var typingTxt = $(".typing-txt").text(); // 타이핑될 텍스트를 가져온다 
+                typingTxt = typingTxt.split(""); // 한글자씩 자른다. 
+                if (typingBool == false) { // 타이핑이 진행되지 않았다면 
+                    typingBool = true;
+
+                    var tyInt = setInterval(typing, 50); // 반복동작 
+                }
+
+                function typing() {
+                    if (typingIdx < typingTxt.length) { // 타이핑될 텍스트 길이만큼 반복 
+                        $(".typing").append(typingTxt[typingIdx]); // 한글자씩 이어준다. 
+                        typingIdx++;
+                    } else {
+                        clearInterval(tyInt); //끝나면 반복종료 
+                    }
+                }
+            });
+            function fn_feed() {
+                var feednum = choosen.status;
+                var LStitle = 'monster';
+                var LSfeedinglist = 'feedlist';
+                var book_dataBox = [];
+                if (!window.localStorage) {
+                    alert("로컬 스토리지를 지원하지 않습니다.");
+                    return;
+                }
+
+                if (localStorage.getItem(LSfeedinglist) != null) {
+                    book_dataBox = JSON.parse(localStorage.getItem(LSfeedinglist));
+                }
+                book_dataBox.push(choosen);
+                localStorage.setItem(LSfeedinglist, JSON.stringify(book_dataBox));
+
+
+                var monster = localStorage.getItem(LStitle);
+                if (monster != null) {
+                    monster *= 1;
+                    feednum = (monster + feednum);
+                }
+
+                var mainH = document.getElementById('main'); //class는 안되는데 id는 됨.
+                var monH = document.getElementById('monster');
+                mainH.style.setProperty("height", feednum / 10 + "vh");
+                monH.style.setProperty("height", feednum / 10 + "vh");
+
+                localStorage.setItem(LStitle, feednum);
+            }
+        </script>
+    </section>
+    <!-- partial -->
+    <script src="../book/script.js"></script>
+</body>
+
+</html>

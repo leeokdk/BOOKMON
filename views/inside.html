@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="http://code.jquery.com/jquery-3.6.0.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
+    <link rel="stylesheet" href="/ex_node/style2.css">
+</head>
+<body>
+  <div class="search-wrapper">
+    <div class="input-holder">
+        <button class="search-icon" onclick="fn_load()"><span></span></button>
+    </div>
+</div>
+  <ul id="papa">
+    <!--child list-->
+  </ul>
+
+  <script>
+    var isbnLS = JSON.parse(localStorage.getItem('feedlist'));
+    var selected = "";
+    if(isbnLS != null){
+      // var ranNum = Math.ceil( Math.random() * 6 );
+      var papaUl = document.getElementById('papa');
+      for(var i = 0; i<isbnLS.length; i++){
+        if(isbnLS[i].thumbnail == ""){
+          console.log(isbnLS[i].title+'썸네일 없음');
+          continue;
+        }
+        var chli = document.createElement('li');
+        chli.innerHTML = '<img src="'+isbnLS[i].thumbnail+'" onclick="load('+"'"+isbnLS[i].isbn.replace(" ","%")+"'"+');"  title="'+isbnLS[i].title+'">';
+        papaUl.append(chli);
+      }      
+    }
+    function load(input){
+      window.location.href = "./book.html?isbn="+input+"=inside";
+    }
+    function fn_load(){
+      window.location.href = "../index.html";
+    }
+
+  </script>
+    <!-- partial -->
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js'></script>
+  <script  src="/ex_node/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            background-color: #182028;
+        }
+    </style>
+    <link rel="stylesheet" href="./search/searchC.css">
+</head>
+
+<body>
+    <div class="search-wrapper">
+        <div class="input-holder">
+            <input type="text" class="search-input" placeholder="Type to search" />
+            <button class="search-icon" onclick="searchToggle(this, event);"><span></span></button>
+        </div>
+        <span class="close" onclick="searchToggle(this, event);"></span>
+    </div>
+    <!--this-->
+    <p></p>
+    <script src="https://code.jquery.com/jquery-3.4.1.js"
+        integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+    <script>
+        function searchToggle(obj, evt) {
+            var container = $(obj).closest('.search-wrapper');
+            if (!container.hasClass('active')) {
+                container.addClass('active');
+                evt.preventDefault();
+            }
+            else if (container.hasClass('active') && $(obj).closest('.input-holder').length == 0) {
+                container.removeClass('active');
+                // clear input
+                container.find('.search-input').val('');
+            }
+            else if (container.hasClass('active') && container.find('.search-input').val() != "") {
+                console.log(container.find('.search-input').val());
+                $.ajax({
+                    method: "GET",
+                    url: "https://dapi.kakao.com/v3/search/book?target=title",
+                    data: { query: container.find('.search-input').val() , size: 20 },
+                    headers: { Authorization: "KakaoAK fc43bd9a38a4af415153a8922bb94f82" },
+                    error(e) {
+                        console.log(e);
+                    }
+                })
+                    .done(function (msg) {
+                        var LStitle = 'isbnLS'
+                        var book_dataBox = [];
+                        var len = msg.documents.length;
+
+                        for (var i = 0; i < len; i++) {
+                            book_dataBox.push(msg.documents[i]);
+                        }
+
+                        if (!window.localStorage) {
+                            alert("로컬 스토리지를 지원하지 않습니다.");
+                            return;
+                        }
+                        localStorage.setItem(LStitle, JSON.stringify(book_dataBox));
+                        location.reload();
+                    });
+            }
+        }
+    </script>
+</body>
+
+</html>

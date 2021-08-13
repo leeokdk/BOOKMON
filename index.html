@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="http://code.jquery.com/jquery-3.6.0.js"></script>
+  <style>
+    html, body{
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+    }
+    div{
+      margin: 0;
+      padding: 0;
+    }
+    #nav{
+      height: 10%;
+    }
+    #cont{
+      width: 100%;
+    }
+  </style>
+  <script>
+    $(document).ready(function(){
+      $("#nav").load("./selectbook.html");
+      $("#cont").load("./views/books.html");
+    });
+  </script>
+</head>
+<body>
+<div id="nav"></div>
+<div id="cont"></div>
+</body>
+</html>
